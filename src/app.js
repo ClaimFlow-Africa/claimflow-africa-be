@@ -1,20 +1,20 @@
+// src/app.js
 const express = require("express");
 const cors = require("cors");
+require("dotenv").config();
 
-const authRoutes = require("./routes/authRoutes");
-const claimRoutes = require("./routes/claimRoutes");
-const { errorHandler } = require("./middleware/errorMiddleware");
-const { logRequest } = require("./utils/logger");
+// Import database to ensure models are synced
+const db = require("./models");  // this runs your index.js
 
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
-app.use(logRequest);
 
-app.use("/api/auth", authRoutes);
-app.use("/api/claims", claimRoutes);
-
-app.use(errorHandler);
+// Test route
+app.get("/", (req, res) => {
+  res.send("API is running...");
+});
 
 module.exports = app;

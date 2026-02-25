@@ -1,6 +1,6 @@
-const pool = require("../config/db");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
 exports.register = async (req, res) => {
   try {
@@ -8,13 +8,14 @@ exports.register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await pool.query(
-      `INSERT INTO users (name, email, password, role)
-       VALUES (?, ?, ?, ?)`,
-      [name, email, hashedPassword, role]
-    );
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role
+    });
 
-    res.status(201).json({ message: "User registered successfully" });
+    res.status(201).json({ message: "User registered successfully", userId: user.id });
 
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -25,22 +26,12 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const [rows] = await pool.query(
-      "SELECT * FROM users WHERE email = ?",
-      [email]
-    );
+    const user = await User.findOne({ where: { email } });
 
-    if (rows.length === 0) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    const user = rows[0];
+    if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
     const validPassword = await bcrypt.compare(password, user.password);
-
-    if (!validPassword) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
+    if (!validPassword) return res.status(400).json({ message: "Invalid credentials" });
 
     const token = jwt.sign(
       { id: user.id, role: user.role },
