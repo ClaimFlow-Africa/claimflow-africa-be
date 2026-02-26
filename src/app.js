@@ -40,4 +40,13 @@ app.get("/", (req, res) => {
   res.json({ message: "API running" });
 });
 
+// Health check route (ADDED)
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    uptime: process.uptime(),
+    timestamp: new Date(),
+  });
+});
+
 module.exports = app;
