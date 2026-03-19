@@ -10,9 +10,11 @@ const User = sequelize.define('User', {
     },
     name: { type: DataTypes.STRING, allowNull: false },
     email: { type: DataTypes.STRING, allowNull: false, unique: true },
-    role: { type: DataTypes.ENUM('billing_officer','clinic_manager','pharmacist','regulator'), allowNull: false },
-    password_hash: { type: DataTypes.STRING, allowNull: false },
+    role: { type: DataTypes.ENUM('billing_officer','clinic_manager','pharmacist','regulator'), allowNull: true },
+    password: { type: DataTypes.STRING, allowNull: false },
     pin_code: { type: DataTypes.STRING(10) },
+    otp_code: { type: DataTypes.STRING(4) },
+    otp_expires: { type: DataTypes.DATE },
 }, {
     tableName: 'users',
     timestamps: true
